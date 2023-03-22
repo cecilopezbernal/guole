@@ -7,7 +7,6 @@ body{
     color: #080708;
     font-family: 'Poppins', sans-serif;
     overflow-x: hidden;
-
 }
 
 img {
@@ -16,7 +15,6 @@ img {
 }
 
 button{
-    /* color: #080708; */
     font-family: 'Poppins', sans-serif;
     font-weight: 300;
     font-size: 28px;
@@ -29,13 +27,14 @@ button{
 }
 
 .caja_funciones {
-    /* color: #080708; */
     font-size: 14px;
     margin: 7% auto;
 }
 
 ul {
     list-style: none;
+    padding: 3%;
+    width: 100%;
 }
 
 footer {
