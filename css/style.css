@@ -15,6 +15,10 @@ img {
     margin: 7% auto;
 }
 
+a {
+    font-style: none;
+}
+
 button{
     font-family: 'Poppins', sans-serif;
     font-weight: 300;
