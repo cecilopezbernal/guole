@@ -23,7 +23,9 @@ button{
     background-color: #FDCA40;
     border: none;
     margin: auto;
-    padding: 1% 5%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    color: #080708;
 }
 
 .caja_funciones {
@@ -37,6 +39,7 @@ ul {
     width: 100%;
 }
 
+
 footer {
     background-color: #080708;
     opacity: 0.5;
@@ -45,4 +48,6 @@ footer {
     width: 100vw;
     font-size: 12px;
     text-align: center;
+    font-weight: 200;
+
 }
