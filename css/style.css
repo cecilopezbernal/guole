@@ -104,6 +104,21 @@ input {
     width: 75%;
 }
 
+.inputLogin {
+    margin: 2%;
+    width: 100%;
+}
+
+.hide {
+    display: none;
+}
+
+.cerrarSesion {
+    background-color: #716f71;
+    font-size: 18px;
+    opacity: 0.8;
+}
+
 .movimiento_panel{
     width: 70%;
 }

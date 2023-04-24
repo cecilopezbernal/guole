@@ -6,29 +6,11 @@ let total = 0;
 let movimientos_filtrado = [];
 let input = document
 
-// const ingresos = [];
-// const gastos = [];
-const movimientos = [];
+const movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
 const categoriaIngresoIMG = ['💶','💰','🏦','🎁','🔁'];
 const text_categoriaIngreso = 'Cuéntame ingresando el número de la categoría que te gustaría ingresar \n 1️⃣ : Sueldo 💶 \n 2️⃣ : Rentas 💰\n 3️⃣ : Préstamo 🏦 \n 4️⃣ : Regalo 🎁 \n 5️⃣ : Devoluciones 🔁\n';
 const categoriaGastoIMG = ['🏡','🛒','💡','🩺','🐾','⛱','👽'];
 const text_categoriaGasto = 'Cuéntame ingresando el número de la categoría que te gustaría ingresar \n 1️⃣ : Alquiler 🏡 \n 2️⃣ : Supermercado 🛒\n 3️⃣ : Servicios Públicos 💡 \n 4️⃣ : Salud 🩺 \n 5️⃣ : Mascotas 🐾\n 6️⃣ : Ocio ⛱\n 7️⃣ : Otros 👽\n';
-
-//==========================//
-//           HTML
-//==========================//
-
-const listado = document.querySelector(".panel_registros")
-const valor_total = document.querySelector("#total")
-const text_total =  document.querySelector("#text_total")
-
-document.querySelector("#login").onclick = login;
-document.querySelector("#registrar_movimiento").onclick = registrar_movimiento;
-document.querySelector("#mostrar_ingresos").onclick = mostrar_ingresos;
-document.querySelector("#mostrar_gastos").onclick = mostrar_gastos;
-document.querySelector("#quitar_filtros").onclick =quitar_filtros;
-document.querySelector("#input_busqueda").onkeydown = teclado;
-
 
 // Valores ya cargados para facilitar pruebas
 const ingresosCargados = [{ clase: 'ingreso', fecha: '5/3/2023', categoria: categoriaIngresoIMG[0], importe: 1500, descripcion: 'sueldo abril' },
@@ -41,23 +23,102 @@ const gastosCargados = [{ clase: 'gasto', fecha: '8/3/2023', categoria: categori
                         { clase: 'gasto', fecha: '19/3/2023', categoria: categoriaGastoIMG[3], importe: -4, descripcion: 'ibuprofeno' },
                         { clase: 'gasto', fecha: '25/3/2023', categoria: categoriaGastoIMG[4], importe: -40, descripcion: 'salida con amigos' }];
 
+// Función para comparar por fechas
+const compararFechas = (a, b) => {
+    const [dayA, monthA, yearA] = a.fecha.split('/');
+    const [dayB, monthB, yearB] = b.fecha.split('/');
+    const dateA = new Date(`${yearA}-${monthA}-${dayA}`);
+    const dateB = new Date(`${yearB}-${monthB}-${dayB}`);
+    return dateB - dateA;
+};
 
+//==========================//
+//           HTML
+//==========================//
+const listado = document.querySelector(".panel_registros")
+const valor_total = document.querySelector("#total")
+const text_total =  document.querySelector("#text_total")
+const inputUsuario  = document.querySelector("#usuario")
+const inputPass  = document.querySelector("#password")
+const nameUsuario = document.querySelector("#nombreUsuario")
+const botonLogin = document.querySelector("#login")
+
+// Comprobación de usuario logueado
+
+let datosLogin = JSON.parse(localStorage.getItem("datosDeForm"));
+if (datosLogin !== null) {
+    logueado(datosLogin.nombre);
+    movimientosUsuarioLogueado();
+} else {
+    iniciarLogin();
+}
+
+botonLogin.addEventListener("click", () => {
+    datosLogin = JSON.parse(localStorage.getItem("datosDeForm"));
+    if (datosLogin !== null) {
+        cerrarSesion();
+    } else {
+        login();
+    }
+});
+
+document.querySelector("#registrar_movimiento").addEventListener("click", registrar_movimiento);
+document.querySelector("#mostrar_ingresos").addEventListener("click", mostrar_ingresos);
+document.querySelector("#mostrar_gastos").addEventListener("click", mostrar_gastos);
+document.querySelector("#quitar_filtros").addEventListener("click", quitar_filtros);
+document.querySelector("#input_busqueda").addEventListener("search", (e)=> {
+    buscar_descripcion(e.target.value);
+})
 
 //=========================//
 //        FUNCIONES 
 //=========================//
 
+// Mostrar textos y botones correspondientes al status: "LOGUEADO"
+function logueado(name) {
+    inputUsuario.classList.add('hide');
+    inputPass.classList.add('hide');
+    nameUsuario.classList.remove('hide');
+    nameUsuario.innerHTML = `Usuario: ${name}`;
+    botonLogin.innerHTML = `cerrar sesión`
+    botonLogin.classList.add('cerrarSesion')
+}
+
+// Mostrar textos y botones correspondientes al status: "DESLOGUEADO"
+function iniciarLogin () {
+        inputUsuario.value = '';
+        inputPass.value = '';
+        inputUsuario.classList.remove('hide');
+        inputPass.classList.remove('hide');
+        nameUsuario.classList.add('hide');
+        botonLogin.innerHTML = `login`
+        botonLogin.classList.remove('cerrarSesion')
+}
+
 // Función para loguearse. Carga ingresos, gastos y total
 function login() {
-    usuario = prompt('Ingresa tu nombre de usuario:');
+    if (inputUsuario.value.trim().length >= 3 && inputPass.value.trim().length >= 3) {
+        console.log('Bienvenido', inputUsuario.value, 'a tu billetera virtual. Tus datos han sido cargados');
+        
+        nuevoLogin = {
+            nombre: inputUsuario.value, 
+            password: inputPass.value
+        }
+        localStorage.setItem("datosDeForm", JSON.stringify(nuevoLogin))
 
-    if (usuario.trim().length >= 3) {
-        console.log('Bienvenido', usuario, 'a tu billetera virtual. Tus datos han sido cargados');
+        logueado(nuevoLogin.nombre);
         movimientosUsuarioLogueado(); // carga de datos de usuario logueado
     }
     else {
-        console.warn("Lo lamento, no entendido bien quién eres. Por favor, vuelve a intentarlo");
+        console.warn("Lo lamento, no entendido bien quién eres. Por favor, vuelve a intentarlo. Usuario y contraseña deben tener al menos 3 caracteres");
     }
+}
+
+function cerrarSesion () {
+    localStorage.clear();
+    movimientos.length = 0;
+    listar_en_panel(movimientos)
+    iniciarLogin();
 }
 
 // Setear el total según valores ya cargados con usuario logueado
@@ -80,6 +141,9 @@ function movimientosUsuarioLogueado() {
     // mostrar en panel ordenados por fecha
     const movimientosPorFecha = movimientos.sort(compararFechas);
     listar_en_panel(movimientosPorFecha);
+
+    // local storage
+    guardarMovimiento();
 }
 
 // REGISTRAR MOVIMIENTO
@@ -103,6 +167,15 @@ function registrar_movimiento() {
     // cambiar aspecto botones
     document.querySelector("#mostrar_ingresos").classList.remove('btn_funciones-active');
     document.querySelector("#mostrar_gastos").classList.remove('btn_funciones-active');
+
+    // local storage
+    guardarMovimiento();
+}
+
+function guardarMovimiento() {
+    for (i=0; i < movimientos.length; i++) {
+        localStorage.setItem(`movimiento ${i}`, JSON.stringify(movimientos[i]));
+    }
 }
 
 // Registrar ingreso
@@ -122,7 +195,6 @@ function registrar_ingreso() {
         total += importeIngreso;
         console.log ('🔹 Has registrado un nuevo ingreso de $' + importeIngreso + ' para la categoría ' + categoriaIngreso);
         continuar_ingresos = confirm('Deseas registrar otro ingreso? 💵');
-        
     } while (continuar_ingresos);
 }
 
@@ -258,12 +330,5 @@ function listar_en_panel(lista) {
     valor_total.innerHTML = `${total} EUR`;
 }
 
-// Función para comparar por fechas
-const compararFechas = (a, b) => {
-    const [dayA, monthA, yearA] = a.fecha.split('/');
-    const [dayB, monthB, yearB] = b.fecha.split('/');
-    const dateA = new Date(`${yearA}-${monthA}-${dayA}`);
-    const dateB = new Date(`${yearB}-${monthB}-${dayB}`);
-    return dateB - dateA;
-};
+
 

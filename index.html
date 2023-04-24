@@ -15,9 +15,13 @@
     <div class="panel">
         <div class="botones">
             <img src="img/guole.png" alt="logo_guole">
+            <form>
+                <input type="text" class="inputLogin" id="usuario" placeholder="Nombre de usuario">
+                <input type="password" class="inputLogin" id="password" placeholder="Contraseña">  
+            </form>
+            <p class="usuarioLogueado hide" id="nombreUsuario"></p>
             <button class="btn_login" id="login">login</button>
             <button class="btn_funciones" id="registrar_movimiento">Nuevo movimiento</button>
-            <!-- <button class="btn_funciones" id="registrar_gasto">Nuevo gasto</button> -->
             <button class="btn_funciones" id="mostrar_ingresos">Mostrar ingresos</button>
             <button class="btn_funciones" id="mostrar_gastos">Mostrar gastos</button>
             <button class="btn_funciones" id="quitar_filtros">Quitar filtros</button>
@@ -26,7 +30,7 @@
         <div class="panel_movimientos">
             <div class="panel_header">
                 <div class="panel_buscar">
-                    <input id="input_busqueda" type="text" placeholder="🔍 buscar por descripción">
+                    <input id="input_busqueda" type="search" placeholder="🔍 buscar por descripción">
                 </div>
                 <div class="panel_total">
                     <p id="text_total">Total disponible:</p>
@@ -37,7 +41,7 @@
 
             </div>
         </div>
-        
+        <a href="" class="prueba"></a>
     </div>
 
     <footer>
