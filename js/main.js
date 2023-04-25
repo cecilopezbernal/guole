@@ -2,11 +2,11 @@
 //         VARIABLES
 //==========================//
 let usuario;
-let total = 0;
+let total = localStorage.getItem('total') || 0;
 let movimientos_filtrado = [];
 let input = document
 
-const movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
+const movimientos = [];
 const categoriaIngresoIMG = ['💶','💰','🏦','🎁','🔁'];
 const text_categoriaIngreso = 'Cuéntame ingresando el número de la categoría que te gustaría ingresar \n 1️⃣ : Sueldo 💶 \n 2️⃣ : Rentas 💰\n 3️⃣ : Préstamo 🏦 \n 4️⃣ : Regalo 🎁 \n 5️⃣ : Devoluciones 🔁\n';
 const categoriaGastoIMG = ['🏡','🛒','💡','🩺','🐾','⛱','👽'];
@@ -21,7 +21,7 @@ const ingresosCargados = [{ clase: 'ingreso', fecha: '5/3/2023', categoria: cate
 const gastosCargados = [{ clase: 'gasto', fecha: '8/3/2023', categoria: categoriaGastoIMG[1], importe: -98, descripcion: 'compra mensual' },
                         { clase: 'gasto', fecha: '18/2/2023', categoria: categoriaGastoIMG[0], importe: -700, descripcion: 'alquiler abril' },
                         { clase: 'gasto', fecha: '19/3/2023', categoria: categoriaGastoIMG[3], importe: -4, descripcion: 'ibuprofeno' },
-                        { clase: 'gasto', fecha: '25/3/2023', categoria: categoriaGastoIMG[4], importe: -40, descripcion: 'salida con amigos' }];
+                        { clase: 'gasto', fecha: '25/3/2023', categoria: categoriaGastoIMG[5], importe: -40, descripcion: 'salida con amigos' }];
 
 // Función para comparar por fechas
 const compararFechas = (a, b) => {
@@ -48,16 +48,17 @@ const botonLogin = document.querySelector("#login")
 let datosLogin = JSON.parse(localStorage.getItem("datosDeForm"));
 if (datosLogin !== null) {
     logueado(datosLogin.nombre);
-    movimientosUsuarioLogueado();
+    movimientosGuardados();
+    listar_en_panel(movimientos)
 } else {
     iniciarLogin();
 }
 
 botonLogin.addEventListener("click", () => {
     datosLogin = JSON.parse(localStorage.getItem("datosDeForm"));
-    if (datosLogin !== null) {
+    if (datosLogin !== null || botonLogin.innerHTML == `cerrar sesión`) {
         cerrarSesion();
-    } else {
+    } else if (datosLogin === null ){
         login();
     }
 });
@@ -97,6 +98,7 @@ function iniciarLogin () {
 
 // Función para loguearse. Carga ingresos, gastos y total
 function login() {
+    // total = 0;
     if (inputUsuario.value.trim().length >= 3 && inputPass.value.trim().length >= 3) {
         console.log('Bienvenido', inputUsuario.value, 'a tu billetera virtual. Tus datos han sido cargados');
         
@@ -114,11 +116,25 @@ function login() {
     }
 }
 
+// Recuperar movimientos guardados en storage
+
+function movimientosGuardados () {
+    for (i=0; i<=localStorage.length-1; i++) {
+        key = localStorage.key(i);
+        if(key.indexOf("movimiento") != -1) {
+            movimientos.push(JSON.parse(localStorage.getItem(localStorage.key(i))))
+        }
+    }
+};
+
+// Cerrar sesión
 function cerrarSesion () {
     localStorage.clear();
     movimientos.length = 0;
     listar_en_panel(movimientos)
     iniciarLogin();
+    valor_total.innerHTML = ``;
+    text_total.innerHTML = `Total disponible:`
 }
 
 // Setear el total según valores ya cargados con usuario logueado
@@ -139,8 +155,7 @@ function movimientosUsuarioLogueado() {
     };
   
     // mostrar en panel ordenados por fecha
-    const movimientosPorFecha = movimientos.sort(compararFechas);
-    listar_en_panel(movimientosPorFecha);
+    listar_en_panel(movimientos);
 
     // local storage
     guardarMovimiento();
@@ -148,28 +163,31 @@ function movimientosUsuarioLogueado() {
 
 // REGISTRAR MOVIMIENTO
 function registrar_movimiento() {
-    registroClase = prompt('Escribe "ingreso" o "gasto" según el registro que deseas realizar','ingreso o gasto')
-    if (registroClase === null) {
-        alert('No has ingresado ningún valor, vuelve a intentarlo');
-        return
-    }
-    if (registroClase.toLowerCase().trim() === 'ingreso'){
-        registrar_ingreso();
-    }
-    if (registroClase.toLowerCase().trim() === 'gasto'){
-        registrar_gasto();
-    }
+    if (botonLogin.innerHTML === `cerrar sesión`) {
+        registroClase = prompt('Escribe "ingreso" o "gasto" según el registro que deseas realizar','ingreso o gasto')
+        if (registroClase === null) {
+            alert('No has ingresado ningún valor, vuelve a intentarlo');
+            return
+        }
+        if (registroClase.toLowerCase().trim() === 'ingreso'){
+            registrar_ingreso();
+        }
+        if (registroClase.toLowerCase().trim() === 'gasto'){
+            registrar_gasto();
+        }
 
-    // mostrar en panel ordenados por fecha
-    const movimientosPorFecha = movimientos.sort(compararFechas);
-    listar_en_panel(movimientosPorFecha);
+        // mostrar en panel ordenados por fecha
+        listar_en_panel(movimientos);
 
-    // cambiar aspecto botones
-    document.querySelector("#mostrar_ingresos").classList.remove('btn_funciones-active');
-    document.querySelector("#mostrar_gastos").classList.remove('btn_funciones-active');
+        // cambiar aspecto botones
+        document.querySelector("#mostrar_ingresos").classList.remove('btn_funciones-active');
+        document.querySelector("#mostrar_gastos").classList.remove('btn_funciones-active');
 
-    // local storage
-    guardarMovimiento();
+        // local storage
+        guardarMovimiento();
+    } else if (botonLogin.innerHTML === `login`) {
+        alert('Debes iniciar sesión para poder registrar movimientos')
+    }
 }
 
 function guardarMovimiento() {
@@ -232,11 +250,9 @@ function registrar_gasto() {
 
 function mostrar_ingresos () {
     filtrar_movimientos ('ingreso');
-    const movimientosPorFecha = movimientos_filtrado.sort(compararFechas);
-    listar_en_panel(movimientosPorFecha)
-    calcularTotal(movimientos_filtrado)
+    listar_en_panel(movimientos_filtrado);
     valor_total.innerHTML = `${total} EUR`;
-    text_total.innerHTML = `Total ingresos:`
+    text_total.innerHTML = `Total ingresos:`;
 
     // cambiar aspecto botones
     document.querySelector("#mostrar_ingresos").classList.add('btn_funciones-active');
@@ -245,9 +261,7 @@ function mostrar_ingresos () {
 
 function mostrar_gastos () {
     filtrar_movimientos ('gasto');
-    const movimientosPorFecha = movimientos_filtrado.sort(compararFechas);
-    listar_en_panel(movimientosPorFecha)
-    calcularTotal(movimientos_filtrado)
+    listar_en_panel(movimientos_filtrado)
     valor_total.innerHTML = `${total} EUR`;
     text_total.innerHTML = `Total gastos:`
 
@@ -255,7 +269,6 @@ function mostrar_gastos () {
     document.querySelector("#mostrar_gastos").classList.add('btn_funciones-active');
     document.querySelector("#mostrar_ingresos").classList.remove('btn_funciones-active');
 }
-
 // Función para filtrar según clase 'ingreso' o 'gasto'
 function filtrar_movimientos (parametroFiltro) {
         movimientos_filtrado = movimientos.filter((movimiento)=> movimiento.clase.includes(parametroFiltro))
@@ -267,9 +280,9 @@ function filtrar_movimientos (parametroFiltro) {
 
 // Remueve filtros aplicados y vuelve a mostrar todos los movimientos
 function quitar_filtros() {
-    calcularTotal(movimientos)
-    const movimientosPorFecha = movimientos.sort(compararFechas);
-    listar_en_panel(movimientosPorFecha);
+    listar_en_panel(movimientos);
+    valor_total.innerHTML = `${total} EUR`;
+    text_total.innerHTML = `Total disponible:`
 
     // cambiar aspecto botones
     document.querySelector("#mostrar_ingresos").classList.remove('btn_funciones-active');
@@ -278,7 +291,9 @@ function quitar_filtros() {
 
 // Calcular la suma de importes de un array
 function calcularTotal(array) {
-    total = array.reduce((acc, elemento)=> acc + elemento.importe, 0)
+    total = array.reduce((acc, elemento)=> acc + elemento.importe, 0);
+    localStorage.setItem("total", total)
+
 }
 
 // Función que activa la búsqueda del input con la tecla ENTER
@@ -296,7 +311,6 @@ function buscar_descripcion() {
             alert(`No se encontró "${palabra}" en los movimientos`);
         } else {
             text_total.innerHTML = `Total:`
-            calcularTotal(movimientos_palabra);
             listar_en_panel(movimientos_palabra);
         }
         document.querySelector("#input_busqueda").value = "";
@@ -304,10 +318,12 @@ function buscar_descripcion() {
 
 // Escribir listado en el panel
 function listar_en_panel(lista) {
+    calcularTotal(lista);
+    const movimientosPorFecha = lista.sort(compararFechas);
     let contenidoPanel = "" 
     
     listado.innerHTML = ""
-    lista.forEach((movimiento) => {
+    movimientosPorFecha.forEach((movimiento) => {
         if (movimiento.clase === 'gasto') {
             claseSigno = ' signo_gasto'
         } 
