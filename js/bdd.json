@@ -1,0 +1,46 @@
+[
+    {
+        "userId" : "Ceci", 
+        "pass" : "1234",
+        "movimientos" : [
+            { "clase": "ingreso", "fecha": "5/3/2023", "categoria": "💶", "importe": 1500, "descripcion": "sueldo abril" },
+            { "clase": "ingreso", "fecha": "9/3/2023", "categoria": "💰", "importe": 800, "descripcion": "rentas departamento" },
+            { "clase": "ingreso", "fecha": "15/3/2023", "categoria": "🎁", "importe": 150, "descripcion": "regalo de la abuela" },
+            { "clase": "ingreso", "fecha": "16/3/2023", "categoria": "🔁", "importe": 90, "descripcion": "devolución zapas" },
+            { "clase": "gasto", "fecha": "8/3/2023", "categoria": "🛒", "importe": -98, "descripcion": "compra mensual" },
+            { "clase": "gasto", "fecha": "1/2/2023", "categoria": "🏡", "importe": -700, "descripcion": "alquiler abril" },
+            { "clase": "gasto", "fecha": "19/3/2023", "categoria": "🩺", "importe": -4, "descripcion": "ibuprofeno" },
+            { "clase": "gasto", "fecha": "25/3/2023", "categoria": "⛱", "importe": -40, "descripcion": "salida con amigos" }
+        ]
+    },
+    {
+        "userId" : "Fede", 
+        "pass" : "5678",
+        "movimientos" : [
+            { "clase": "ingreso", "fecha": "5/2/2023", "categoria": "💶", "importe": 2100, "descripcion": "sueldo febrero" },
+            { "clase": "ingreso", "fecha": "9/2/2023", "categoria": "💰", "importe": 800, "descripcion": "rentas casa" },
+            { "clase": "ingreso", "fecha": "15/2/2023", "categoria": "🎁", "importe": 150, "descripcion": "loteria" },
+            { "clase": "ingreso", "fecha": "16/2/2023", "categoria": "💰", "importe": 90, "descripcion": "ganancias inversiones" },
+            { "clase": "gasto", "fecha": "8/2/2023", "categoria": "🛒", "importe": -68, "descripcion": "mercadona" },
+            { "clase": "gasto", "fecha": "5/2/2023", "categoria": "🏡", "importe": -900, "descripcion": "alquiler marzo" },
+            { "clase": "gasto", "fecha": "1/2/2023", "categoria": "💡", "importe": -104, "descripcion": "luz y gas" },
+            { "clase": "gasto", "fecha": "20/2/2023", "categoria": "🐾", "importe": -61, "descripcion": "veterinaria" }
+        ]
+    }
+]
+
+
+const newUser = {
+    userId : "Marisa", 
+    pass : "2640",
+    movimientos : [
+        { clase: "ingreso", fecha: "5/1/2023", categoria: "💶", importe: 1000, descripcion: "consultorio diciembre" },
+        { clase: "ingreso", fecha: "9/1/2023", categoria: "💰", importe: 800, descripcion: "rentas departamento" },
+        { clase: "ingreso", fecha: "15/1/2023", categoria: "💶", importe: 1250, descripcion: "jubilación" },
+        { clase: "ingreso", fecha: "16/1/2023", categoria: "🎁", importe: 90, descripcion: "cumpleaños" },
+        { clase: "gasto", fecha: "8/1/2023", categoria: "🛒", importe: -98, descripcion: "carrefour" },
+        { clase: "gasto", fecha: "2/1/2023", categoria: "🏡", importe: -700, descripcion: "alquiler enero" },
+        { clase: "gasto", fecha: "19/1/2023", categoria: "🩺", importe: -23, descripcion: "control médico" },
+        { clase: "gasto", fecha: "25/1/2023", categoria: "⛱", importe: -40, descripcion: "almuerzo en la playa" }
+    ]
+}

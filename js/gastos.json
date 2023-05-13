@@ -1,0 +1,9 @@
+[
+    {"img": "🏡", "categoria":"Alquiler"},
+    {"img": "🛒", "categoria":"Supermercado"},
+    {"img": "💡", "categoria":"Servicios Públicos"},
+    {"img": "🩺", "categoria":"Salud"},
+    {"img": "🐾", "categoria":"Mascotas"},
+    {"img": "⛱", "categoria":"Ocio"},
+    {"img": "👽", "categoria":"Otros"}
+]

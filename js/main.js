@@ -1,27 +1,52 @@
 //==========================//
 //         VARIABLES
 //==========================//
-let usuario;
 let total = localStorage.getItem('total') || 0;
 let movimientos_filtrado = [];
-let input = document
+let id = 0;
+let user = [];
 
-const movimientos = [];
-const categoriaIngresoIMG = ['💶','💰','🏦','🎁','🔁'];
-const text_categoriaIngreso = 'Cuéntame ingresando el número de la categoría que te gustaría ingresar \n 1️⃣ : Sueldo 💶 \n 2️⃣ : Rentas 💰\n 3️⃣ : Préstamo 🏦 \n 4️⃣ : Regalo 🎁 \n 5️⃣ : Devoluciones 🔁\n';
-const categoriaGastoIMG = ['🏡','🛒','💡','🩺','🐾','⛱','👽'];
-const text_categoriaGasto = 'Cuéntame ingresando el número de la categoría que te gustaría ingresar \n 1️⃣ : Alquiler 🏡 \n 2️⃣ : Supermercado 🛒\n 3️⃣ : Servicios Públicos 💡 \n 4️⃣ : Salud 🩺 \n 5️⃣ : Mascotas 🐾\n 6️⃣ : Ocio ⛱\n 7️⃣ : Otros 👽\n';
+movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
 
-// Valores ya cargados para facilitar pruebas
-const ingresosCargados = [{ clase: 'ingreso', fecha: '5/3/2023', categoria: categoriaIngresoIMG[0], importe: 1500, descripcion: 'sueldo abril' },
-                          { clase: 'ingreso', fecha: '9/3/2023', categoria: categoriaIngresoIMG[1], importe: 800, descripcion: 'rentas departamento' },
-                          { clase: 'ingreso', fecha: '15/3/2023', categoria: categoriaIngresoIMG[3], importe: 150, descripcion: 'regalo de la abuela' },
-                          { clase: 'ingreso', fecha: '16/3/2023', categoria: categoriaIngresoIMG[4], importe: 90, descripcion: 'devolución zapas' }];
+const ingresosOptions = {
+    "💶": "Sueldo",
+    "💰": "Rentas",
+    "🏦": "Préstamo",
+    "🎁": "Regalo",
+    "🔁": "Devolución"
+}
+const gastosOptions ={
+    "🏡": "Alquiler",
+    "🛒": "Supermercado",
+    "💡": "Servicios Públicos",
+    "🩺": "Salud",
+    "🐾": "Mascotas",
+    "⛱": "Ocio",
+    "👽": "Otros"
+}
 
-const gastosCargados = [{ clase: 'gasto', fecha: '8/3/2023', categoria: categoriaGastoIMG[1], importe: -98, descripcion: 'compra mensual' },
-                        { clase: 'gasto', fecha: '18/2/2023', categoria: categoriaGastoIMG[0], importe: -700, descripcion: 'alquiler abril' },
-                        { clase: 'gasto', fecha: '19/3/2023', categoria: categoriaGastoIMG[3], importe: -4, descripcion: 'ibuprofeno' },
-                        { clase: 'gasto', fecha: '25/3/2023', categoria: categoriaGastoIMG[5], importe: -40, descripcion: 'salida con amigos' }];
+const dataSave = [];
+i=1
+fetch('https://645f4ea39d35038e2d20a271.mockapi.io/guole')
+    .then((response)=> response.json())
+    .then((data)=> data.forEach((usuario) => {
+        dataSave.push({userId:usuario.userId,pass:usuario.pass,movimientos:usuario.movimientos})
+    }));
+
+const categorias = [
+    {tipo: "ingreso", img: "💶", categoria: "Sueldo"},
+    {tipo: "ingreso", img: "💰", categoria: "Rentas"},
+    {tipo: "ingreso", img: "🏦", categoria: "Préstamo"},
+    {tipo: "ingreso", img: "🎁", categoria: "Regalo"},
+    {tipo: "ingreso", img: "🔁", categoria: "Devolución"},
+    {tipo: "gasto", img: "🏡", categoria:"Alquiler"},
+    {tipo: "gasto", img: "🛒", categoria:"Supermercado"},
+    {tipo: "gasto", img: "💡", categoria:"Servicios Públicos"},
+    {tipo: "gasto", img: "🩺", categoria:"Salud"},
+    {tipo: "gasto", img: "🐾", categoria:"Mascotas"},
+    {tipo: "gasto", img: "⛱", categoria:"Ocio"},
+    {tipo: "gasto", img: "👽", categoria:"Otros"}
+]
 
 // Función para comparar por fechas
 const compararFechas = (a, b) => {
@@ -35,32 +60,27 @@ const compararFechas = (a, b) => {
 //==========================//
 //           HTML
 //==========================//
-const listado = document.querySelector(".panel_registros")
-const valor_total = document.querySelector("#total")
-const text_total =  document.querySelector("#text_total")
-const inputUsuario  = document.querySelector("#usuario")
-const inputPass  = document.querySelector("#password")
-const nameUsuario = document.querySelector("#nombreUsuario")
-const botonLogin = document.querySelector("#login")
+const listado = document.querySelector(".panel_registros");
+const valor_total = document.querySelector("#total");
+const text_total =  document.querySelector("#text_total");
+const inputUsuario  = document.querySelector("#usuario");
+const inputPass  = document.querySelector("#password");
+const nameUsuario = document.querySelector("#nombreUsuario");
+const botonLogin = document.querySelector("#login");
 
 // Comprobación de usuario logueado
-
 let datosLogin = JSON.parse(localStorage.getItem("datosDeForm"));
 if (datosLogin !== null) {
-    logueado(datosLogin.nombre);
-    movimientosGuardados();
-    listar_en_panel(movimientos)
+    statusLogueado(datosLogin.userId);
+    listar_en_panel(movimientos);
+    user = datosLogin;
 } else {
-    iniciarLogin();
+    statusDeslogueado();
 }
 
 botonLogin.addEventListener("click", () => {
-    datosLogin = JSON.parse(localStorage.getItem("datosDeForm"));
-    if (datosLogin !== null || botonLogin.innerHTML == `cerrar sesión`) {
-        cerrarSesion();
-    } else if (datosLogin === null ){
-        login();
-    }
+        datosLogin = JSON.parse(localStorage.getItem("datosDeForm"));
+        (datosLogin !== null || botonLogin.innerHTML == `cerrar sesión`) ? cerrarSesion() : login();    
 });
 
 document.querySelector("#registrar_movimiento").addEventListener("click", registrar_movimiento);
@@ -76,213 +96,212 @@ document.querySelector("#input_busqueda").addEventListener("search", (e)=> {
 //=========================//
 
 // Mostrar textos y botones correspondientes al status: "LOGUEADO"
-function logueado(name) {
+function statusLogueado(name) {
     inputUsuario.classList.add('hide');
     inputPass.classList.add('hide');
     nameUsuario.classList.remove('hide');
     nameUsuario.innerHTML = `Usuario: ${name}`;
-    botonLogin.innerHTML = `cerrar sesión`
-    botonLogin.classList.add('cerrarSesion')
+    botonLogin.innerHTML = `cerrar sesión`;
+    botonLogin.classList.add('cerrarSesion');
 }
 
 // Mostrar textos y botones correspondientes al status: "DESLOGUEADO"
-function iniciarLogin () {
+function statusDeslogueado() {
         inputUsuario.value = '';
         inputPass.value = '';
         inputUsuario.classList.remove('hide');
         inputPass.classList.remove('hide');
         nameUsuario.classList.add('hide');
-        botonLogin.innerHTML = `login`
-        botonLogin.classList.remove('cerrarSesion')
+        botonLogin.innerHTML = `login`;
+        botonLogin.classList.remove('cerrarSesion');
 }
 
 // Función para loguearse. Carga ingresos, gastos y total
 function login() {
-    // total = 0;
-    if (inputUsuario.value.trim().length >= 3 && inputPass.value.trim().length >= 3) {
-        console.log('Bienvenido', inputUsuario.value, 'a tu billetera virtual. Tus datos han sido cargados');
-        
-        nuevoLogin = {
-            nombre: inputUsuario.value, 
-            password: inputPass.value
-        }
-        localStorage.setItem("datosDeForm", JSON.stringify(nuevoLogin))
 
-        logueado(nuevoLogin.nombre);
-        movimientosUsuarioLogueado(); // carga de datos de usuario logueado
+    user = dataSave.find((el) => el.userId === inputUsuario.value);
+
+    if (inputUsuario.value.trim().length >= 3 && inputPass.value.trim().length >= 3) {
+        if (user === undefined) {
+            alerta(`Bienvenido ${inputUsuario.value}, a tu billetera virtual.`,'','success',2500);
+            nuevoLogin = {
+                userId: inputUsuario.value, 
+                pass: inputPass.value,
+                movimientos: []
+            }
+            localStorage.setItem("datosDeForm", JSON.stringify({userId: inputUsuario.value,pass: inputPass.value}));
+            // Guardar datos en mockapi
+            appendObject(nuevoLogin);
+            statusLogueado(nuevoLogin.userId);
+            dataSave.push(nuevoLogin);
+            id = dataSave.length
+        } else {
+            if (user.pass === inputPass.value) {
+                alerta (`Hola de nuevo 😊`,'Tus datos han sido cargados','success',2000)
+                id = (dataSave.findIndex(item => item === user)) + 1;
+
+                movimientos = user.movimientos;
+                localStorage.setItem("datosDeForm", JSON.stringify({userId: user.userId, pass: user.pass}));
+                statusLogueado(user.userId);
+                listar_en_panel(movimientos)
+                guardarMovimiento()
+            } else {
+                localStorage.clear();
+                statusDeslogueado();
+                alerta (`Los datos ingresados son incorrectos`,'Vuelve a intentarlo','error',2000);
+            }
+        }
     }
     else {
-        console.warn("Lo lamento, no entendido bien quién eres. Por favor, vuelve a intentarlo. Usuario y contraseña deben tener al menos 3 caracteres");
+        console.warn("Lo lamento, no entendí quién eres. Por favor, vuelve a intentarlo. Usuario y contraseña deben tener al menos 3 caracteres");
     }
 }
-
-// Recuperar movimientos guardados en storage
-
-function movimientosGuardados () {
-    for (i=0; i<=localStorage.length-1; i++) {
-        key = localStorage.key(i);
-        if(key.indexOf("movimiento") != -1) {
-            movimientos.push(JSON.parse(localStorage.getItem(localStorage.key(i))))
-        }
-    }
-};
 
 // Cerrar sesión
 function cerrarSesion () {
     localStorage.clear();
     movimientos.length = 0;
-    listar_en_panel(movimientos)
-    iniciarLogin();
+    listar_en_panel(movimientos);
+    statusDeslogueado();
     valor_total.innerHTML = ``;
-    text_total.innerHTML = `Total disponible:`
+    text_total.innerHTML = `Total disponible:`;
 }
 
 // Setear el total según valores ya cargados con usuario logueado
-function movimientosUsuarioLogueado() {
-    movimientos.length = 0;
-    if (ingresosCargados.length !== 0) {
-        ingresosCargados.forEach((ingreso) => {
-            movimientos.push(ingreso)
-            total += ingreso.importe;
-        })
-    };
+// function movimientosUsuarioLogueado() {
+//     movimientos.length = 0;
+//     if (ingresosCargados.length !== 0) {
+//         ingresosCargados.forEach((ingreso) => {
+//             movimientos.push(ingreso);
+//             total += ingreso.importe;
+//         })
+//     };
     
-    if (gastosCargados.length !== 0) {
-        gastosCargados.forEach((gasto) => {
-            movimientos.push(gasto)
-            total += gasto.importe;
-        })
-    };
+//     if (gastosCargados.length !== 0) {
+//         gastosCargados.forEach((gasto) => {
+//             movimientos.push(gasto);
+//             total += gasto.importe;
+//         })
+//     };
   
-    // mostrar en panel ordenados por fecha
-    listar_en_panel(movimientos);
+//     // mostrar en panel ordenados por fecha
+//     listar_en_panel(movimientos);
 
-    // local storage
-    guardarMovimiento();
-}
+//     // local storage
+//     guardarMovimiento();
+// }
 
 // REGISTRAR MOVIMIENTO
-function registrar_movimiento() {
+async function registrar_movimiento() {
     if (botonLogin.innerHTML === `cerrar sesión`) {
-        registroClase = prompt('Escribe "ingreso" o "gasto" según el registro que deseas realizar','ingreso o gasto')
-        if (registroClase === null) {
-            alert('No has ingresado ningún valor, vuelve a intentarlo');
-            return
-        }
-        if (registroClase.toLowerCase().trim() === 'ingreso'){
-            registrar_ingreso();
-        }
-        if (registroClase.toLowerCase().trim() === 'gasto'){
-            registrar_gasto();
-        }
-
-        // mostrar en panel ordenados por fecha
+        
+        await choose()
+        await select_category_ingreso()
+        await select_date();
+        await input_importe();
+        await input_descripcion();
+        movimientos.push({ clase: claseMovimiento, fecha: fechaMovimiento, categoria: categoriaMovimiento, importe: importeMovimiento, descripcion: descripcionIngreso }),
+        (total += importeMovimiento);
+    
         listar_en_panel(movimientos);
+        guardarMovimiento();
 
         // cambiar aspecto botones
         document.querySelector("#mostrar_ingresos").classList.remove('btn_funciones-active');
         document.querySelector("#mostrar_gastos").classList.remove('btn_funciones-active');
 
-        // local storage
-        guardarMovimiento();
     } else if (botonLogin.innerHTML === `login`) {
-        alert('Debes iniciar sesión para poder registrar movimientos')
+        alerta('', 'Debes iniciar sesión para poder registrar movimientos','warning',2000);
     }
 }
 
 function guardarMovimiento() {
-    for (i=0; i < movimientos.length; i++) {
-        localStorage.setItem(`movimiento ${i}`, JSON.stringify(movimientos[i]));
-    }
+    localStorage.setItem(`movimientos`, JSON.stringify(movimientos));
+    modifyObject(movimientos);
 }
 
 // Registrar ingreso
-function registrar_ingreso() {
-    let continuar_ingresos = true;
-    do {
-        let fechaIngreso = new Date().toLocaleDateString();
-        let categoriaIngreso = categoriaIngresoIMG[prompt(text_categoriaIngreso)-1];
-        
-        let importeIngreso = Number.parseFloat(prompt('Escribe el valor del ingreso'));
-        while (Number.isNaN(importeIngreso)) {
-            alert('El valor tiene un formato incorrecto');
-            importeIngreso = Number.parseFloat(prompt('Escribe el valor del ingreso en un formato válido'));
-        }
-        let descripcionIngreso = prompt('Escribe una descripción que quieras agregar a este ingreso').toLowerCase();
-        movimientos.push(new Movimiento('ingreso', fechaIngreso, categoriaIngreso, importeIngreso, descripcionIngreso));
-        total += importeIngreso;
-        console.log ('🔹 Has registrado un nuevo ingreso de $' + importeIngreso + ' para la categoría ' + categoriaIngreso);
-        continuar_ingresos = confirm('Deseas registrar otro ingreso? 💵');
-    } while (continuar_ingresos);
-}
+// async function registrar_ingreso() {
+//     await select_category_ingreso()
+//     await select_date();
+//     await input_importe();
+//     await input_descripcion();
+//     movimientos.push({ clase: claseMovimiento, fecha: fechaMovimiento, categoria: categoriaMovimiento, importe: importeMovimiento, descripcion: descripcionIngreso }),
+//     (total += importeMovimiento);
+
+//     listar_en_panel(movimientos);
+//     guardarMovimiento();
+// }
 
 // Registrar gasto
-function registrar_gasto() {
-    let continuar_gastos = true;
-    do {
-        let fechaGasto = new Date().toLocaleDateString();
-        let categoriaGasto = categoriaGastoIMG[prompt(text_categoriaGasto)-1];
-        let importeGasto = Number.parseFloat(prompt('Escribe el valor del gasto'));
-        while (Number.isNaN(importeGasto)) {
-            alert('El valor tiene un formato incorrecto');
-            importeGasto = Number.parseFloat(prompt('Escribe el valor del gasto en un formato válido'));
-        }
-        if ((total - importeGasto) < 0) {
-            console.error('💀 No tienes suficiente dinero en tu billetera para realizar este gasto')
-            return
-        } else if ((total - importeGasto) < 100) {
-            total -= importeGasto;
-            console.warn('😧 Cuidado, tu billetera se está quedando con poco dinero, te quedan $' + total + ' disponibles');
-        } else {
-            total -= importeGasto;
-            console.log('🔸 Has registrado un nuevo gasto de $' + importeGasto + ' para la categoría ' + categoriaGasto + ', te quedan $' + total + ' disponibles');
-        }
-        descripcionGasto = prompt('Escribe una descripción que quieras agregar a este gasto').toLowerCase();
-        movimientos.push(new Movimiento('gasto', fechaGasto, categoriaGasto, -importeGasto, descripcionGasto));
+// function registrar_gasto() {
+//     let continuar_gastos = true;
+//     do {
+//         select_category_gasto()
+//         let fechaGasto = new Date().toLocaleDateString();
+//         // let categoriaGasto = categoriaGastoIMG[prompt(text_categoriaGasto)-1] || `-`;
+//         let importeGasto = Number.parseFloat(prompt('Escribe el valor del gasto'));
+//         while (Number.isNaN(importeGasto)) {
+//             alert('El valor tiene un formato incorrecto');
+//             importeGasto = Number.parseFloat(prompt('Escribe el valor del gasto en un formato válido'));
+//         }
+//         if ((total - importeGasto) < 0) {
+//             console.error('💀 No tienes suficiente dinero en tu billetera para realizar este gasto');
+//             return
+//         } else if ((total - importeGasto) < 100) {
+//             total -= importeGasto;
+//             console.warn('😧 Cuidado, tu billetera se está quedando con poco dinero, te quedan $' + total + ' disponibles');
+//         } else {
+//             total -= importeGasto;
+//             console.log('🔸 Has registrado un nuevo gasto de $' + importeGasto + ' para la categoría ' + categoriaGasto + ', te quedan $' + total + ' disponibles');
+//         }
+//         let descripcionGasto = prompt('Escribe una descripción que quieras agregar a este gasto').toLowerCase() || '- Sin descripción -';
+//         movimientos.push(new Movimiento('gasto', fechaGasto, categoriaGasto, -importeGasto, descripcionGasto));
         
-        continuar_gastos = confirm('Deseas registrar otro gasto?');
+//         continuar_gastos = confirm('Deseas registrar otro gasto?');
         
-    } while (continuar_gastos);
+//     } while (continuar_gastos);
 
-}
+// }
 
 // Filtros para mostrar ingresos o gastos
-
 function mostrar_ingresos () {
     filtrar_movimientos ('ingreso');
     listar_en_panel(movimientos_filtrado);
     valor_total.innerHTML = `${total} EUR`;
     text_total.innerHTML = `Total ingresos:`;
 
-    // cambiar aspecto botones
-    document.querySelector("#mostrar_ingresos").classList.add('btn_funciones-active');
-    document.querySelector("#mostrar_gastos").classList.remove('btn_funciones-active');
+    if (movimientos_filtrado.length !== 0) {
+        // cambiar aspecto botones
+        document.querySelector("#mostrar_ingresos").classList.add('btn_funciones-active');
+        document.querySelector("#mostrar_gastos").classList.remove('btn_funciones-active');     
+    }
+
 }
 
 function mostrar_gastos () {
     filtrar_movimientos ('gasto');
-    listar_en_panel(movimientos_filtrado)
+    listar_en_panel(movimientos_filtrado);
     valor_total.innerHTML = `${total} EUR`;
-    text_total.innerHTML = `Total gastos:`
+    text_total.innerHTML = `Total gastos:`;
 
-    // cambiar aspecto botones
-    document.querySelector("#mostrar_gastos").classList.add('btn_funciones-active');
-    document.querySelector("#mostrar_ingresos").classList.remove('btn_funciones-active');
+    if (movimientos_filtrado.length !== 0) {
+        // cambiar aspecto botones
+        document.querySelector("#mostrar_gastos").classList.add('btn_funciones-active');
+        document.querySelector("#mostrar_ingresos").classList.remove('btn_funciones-active');
+    }
 }
 // Función para filtrar según clase 'ingreso' o 'gasto'
 function filtrar_movimientos (parametroFiltro) {
-        movimientos_filtrado = movimientos.filter((movimiento)=> movimiento.clase.includes(parametroFiltro))
-        if (movimientos_filtrado.length === 0) {
-            alert(`No se encontró ningún ${parametroFiltro} registado`)
-        }
-        return movimientos_filtrado
+        movimientos_filtrado = movimientos.filter((movimiento)=> movimiento.clase.includes(parametroFiltro));
+        (movimientos_filtrado.length !== 0) ? movimientos_filtrado : alert(`No se encontró ningún ${parametroFiltro} registado`);
 }
 
 // Remueve filtros aplicados y vuelve a mostrar todos los movimientos
 function quitar_filtros() {
     listar_en_panel(movimientos);
     valor_total.innerHTML = `${total} EUR`;
-    text_total.innerHTML = `Total disponible:`
+    text_total.innerHTML = `Total disponible:`;
 
     // cambiar aspecto botones
     document.querySelector("#mostrar_ingresos").classList.remove('btn_funciones-active');
@@ -292,27 +311,16 @@ function quitar_filtros() {
 // Calcular la suma de importes de un array
 function calcularTotal(array) {
     total = array.reduce((acc, elemento)=> acc + elemento.importe, 0);
-    localStorage.setItem("total", total)
-
-}
-
-// Función que activa la búsqueda del input con la tecla ENTER
-function teclado(enter){
-	if (enter.keyCode == 13){
-		buscar_descripcion();
-	}
+    localStorage.setItem("total", total);
 }
 
 // Función de búsqueda por descripción
 function buscar_descripcion() {
         let palabra = document.querySelector("#input_busqueda").value.toLowerCase();
-        movimientos_palabra = movimientos.filter((movimiento)=> movimiento.descripcion.includes(palabra))
-        if (movimientos_palabra.length === 0) {
-            alert(`No se encontró "${palabra}" en los movimientos`);
-        } else {
-            text_total.innerHTML = `Total:`
-            listar_en_panel(movimientos_palabra);
-        }
+        movimientos_palabra = movimientos.filter((movimiento)=> movimiento.descripcion.includes(palabra));
+        (movimientos_palabra.length !== 0) ? listar_en_panel(movimientos_palabra) :alert(`No se encontró "${palabra}" en los movimientos`);
+
+        text_total.innerHTML = `Total:`; // RESOLVER MEJOR ESTO
         document.querySelector("#input_busqueda").value = "";
 }
 
@@ -320,16 +328,11 @@ function buscar_descripcion() {
 function listar_en_panel(lista) {
     calcularTotal(lista);
     const movimientosPorFecha = lista.sort(compararFechas);
-    let contenidoPanel = "" 
-    
-    listado.innerHTML = ""
+    let contenidoPanel = "";
+    listado.innerHTML = "";
     movimientosPorFecha.forEach((movimiento) => {
-        if (movimiento.clase === 'gasto') {
-            claseSigno = ' signo_gasto'
-        } 
-        if (movimiento.clase === 'ingreso') {
-            claseSigno = 'signo_ingreso'
-        }
+        (movimiento.clase === 'gasto') && (claseSigno = 'signo_gasto');
+        (movimiento.clase === 'ingreso') && (claseSigno = 'signo_ingreso');
         contenidoPanel += ` 
                                 <div class="movimiento_individual">
                                     <div class="movimiento_categoria">${movimiento.categoria}</div>
@@ -342,9 +345,179 @@ function listar_en_panel(lista) {
                             `
     })
     
-    listado.innerHTML = contenidoPanel ;//|| ""
+    listado.innerHTML = contenidoPanel || "";
     valor_total.innerHTML = `${total} EUR`;
 }
 
+
+// Alertas con sweetalert
+function alerta(title, text, icon, timer) {
+    Swal.fire( {
+        timer: timer,
+        timerProgressBar: true,
+        title: title,
+        text: text,
+        icon: icon,
+        showConfirmButton: false
+    })
+}
+
+let claseMovimiento = '';
+async function choose () {
+    const inputOptions = {
+        0: 'ingreso',
+        1: 'gasto'
+    }
+
+    const { value: clase } = await Swal.fire({
+        title: 'Tipo de movimiento',
+        input: 'radio',
+        inputOptions: inputOptions,
+        inputValidator: (value) => {
+            if (!value) {
+                return 'Necesitas elegir un tipo de movimiento!'
+            } else {
+                claseMovimiento = inputOptions[value];
+            }
+        }
+    })
+
+    // if (clase) {
+    //     registrar_movimiento();
+    // }
+}
+
+let categoriaMovimiento = '';
+async function select_category_ingreso () {
+    (claseMovimiento === 'ingreso') ? ( options = ingresosOptions) : ( options = gastosOptions);
+    const { value: category } =  await Swal.fire({
+        title: 'Selecciona una categoría',
+        input: 'select',
+        inputOptions: options,
+        inputPlaceholder: '...',
+        inputValidator: (value) => {
+            if (!value) {
+              return 'Necesitas elegir una categoría!'
+            }
+        }
+      })
+    
+    if (category) {
+        categoriaMovimiento = category;
+    }
+}
+
+let fechaMovimiento = new Date().toLocaleDateString();
+async function select_date() {
+    await Swal.fire({
+        title: 'Selecciona una fecha',
+        html:
+          '<input type="date" id="datepicker" class="swal2-input">',
+
+        preConfirm: () => {
+          const inputDate = document.getElementById('datepicker').value;
+          const dateParts = inputDate.split('-');
+          const year = dateParts[0];
+          const month = dateParts[1];
+          const day = dateParts[2];
+          const formattedDate = `${day}/${month}/${year}`;
+          return formattedDate;
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+            fechaMovimiento = result.value 
+            if (fechaMovimiento == "undefined/undefined/"){
+                fechaMovimiento = new Date().toLocaleDateString() ;
+            }
+        }
+      });
+      
+
+}
+
+let importeMovimiento = 0;
+async function input_importe () {
+    
+    await Swal.fire({
+        title: 'Ingresa el importe',
+        input: 'number',
+        inputPlaceholder: '0 EUR',
+        inputValidator: (value) => {
+            if (!value || value === "0") {
+                return 'Necesitas escribir un importe válido!'
+            }
+        }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                importeMovimiento = Number.parseFloat(result.value);   
+                (claseMovimiento === 'gasto') && ( importeMovimiento = -importeMovimiento);
+            }
+        });
+}
+
+let descripcionIngreso = '';
+async function input_descripcion () {
+    await Swal.fire({
+        title: 'Ingresa una descripción',
+        input: 'text',
+        inputValidator: (value) => {
+            if (!value) {
+                return 'Necesitas escribir alguna descripción!'
+            }
+        }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                descripcionIngreso = result.value;   
+            }
+        });
+}
+
+
+async function continuar () {
+    Swal.fire({
+        title: 'Deseas registrar otro movimiento?',
+        showCancelButton: true,
+        confirmButtonText: 'Si',
+        cancelButtonText: 'No',
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+            continuar_ingresos = true;
+        } else {
+            continuar_ingresos = false;
+        }
+      })    
+}
+
+function appendObject(obj){
+fetch('https://645f4ea39d35038e2d20a271.mockapi.io/guole', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(obj)
+})
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error(error));
+}
+
+function modifyObject(mov){
+
+    fetch(`https://645f4ea39d35038e2d20a271.mockapi.io/guole/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            userId: user.userId,
+            pass: user.pass,
+            movimientos: mov
+        })
+    })
+      .then(response => response.json())
+      .then(data => console.log(data))
+      .catch(error => console.error(error));
+}
 
 

@@ -91,6 +91,10 @@ input {
     text-align: right;
 }
 
+.panel_buscar{
+    width:60%;
+}
+
 .panel_registros {
     min-height: 65vh;
 }
@@ -181,4 +185,17 @@ footer {
     text-align: center;
     font-weight: 200;
 
+}
+
+
+.swal2-radio label, .swal2-checkbox label {
+    text-align: center;
+}
+
+.swal2-radio input, .swal2-checkbox input {
+    width: 20%;
+}
+
+.usuarioLogueado {
+    margin-left: 15%;
 }
