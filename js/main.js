@@ -8,6 +8,11 @@ let user = [];
 let i = 1;
 let confirmRegistrar = 1;
 let dataSave = [];
+let claseMovimiento = '';
+let categoriaMovimiento = '';
+let fechaMovimiento = new Date().toLocaleDateString();
+let importeMovimiento = 0;
+let descripcionIngreso = '';
 
 movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
 
@@ -129,7 +134,6 @@ function login() {
                 movimientos: []
             }
             localStorage.setItem("datosDeForm", JSON.stringify({ userId: inputUsuario.value, pass: inputPass.value }));
-            // Guardar datos en mockapi
             appendObject(user);
             statusLogueado(user.userId);
             dataSave.push(user);
@@ -297,8 +301,10 @@ function listar_en_panel(lista) {
     valor_total.innerHTML = `${total} EUR`;
 }
 
+//==========================================//
+//         ALERTAS CON SWEETALERT
+//==========================================//
 
-// Alertas con sweetalert
 function alerta(title, text, icon, timer) {
     Swal.fire({
         timer: timer,
@@ -310,7 +316,6 @@ function alerta(title, text, icon, timer) {
     })
 }
 
-let claseMovimiento = '';
 async function choose() {
     const inputOptions = {
         0: 'ingreso',
@@ -330,9 +335,7 @@ async function choose() {
     })
 }
 
-let categoriaMovimiento = '';
 async function select_category() {
-
     (claseMovimiento === 'ingreso') ? (options = categorias.filter((el) => el.tipo.includes("ingreso"))) : (options = categorias.filter((el) => el.tipo.includes("gasto")));
     const opcionesLista = options.map((option) => option.categoria)
     const opcionesImg = options.map((option) => option.img)
@@ -353,7 +356,6 @@ async function select_category() {
     })
 }
 
-let fechaMovimiento = new Date().toLocaleDateString();
 async function select_date() {
     await Swal.fire({
         title: 'Selecciona una fecha',
@@ -379,9 +381,7 @@ async function select_date() {
     });
 }
 
-let importeMovimiento = 0;
 async function input_importe() {
-
     await Swal.fire({
         title: 'Ingresa el importe',
         input: 'number',
@@ -401,7 +401,6 @@ async function input_importe() {
     });
 }
 
-let descripcionIngreso = '';
 async function input_descripcion() {
     await Swal.fire({
         title: 'Ingresa una descripción',
@@ -418,7 +417,6 @@ async function input_descripcion() {
     });
 }
 
-
 async function continuar() {
     Swal.fire({
         title: 'Deseas registrar otro movimiento?',
@@ -434,6 +432,10 @@ async function continuar() {
     })
 }
 
+//=========================//
+//         MOCKAPI
+//=========================//
+
 function appendObject(obj) {
     fetch('https://645f4ea39d35038e2d20a271.mockapi.io/guole', {
         method: 'POST',
@@ -447,7 +449,6 @@ function appendObject(obj) {
 }
 
 function modifyObject(mov) {
-
     fetch(`https://645f4ea39d35038e2d20a271.mockapi.io/guole/${id}`, {
         method: 'PUT',
         headers: {
