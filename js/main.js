@@ -182,14 +182,14 @@ async function registrar_movimiento() {
 
         if (importeMovimiento < 0) {
             if ((total + importeMovimiento) < 0) {
-                alerta('', 'No tienes suficiente dinero en tu billetera para realizar este gasto', 'error', 2000);
+                alerta('', 'No tienes suficiente dinero en tu billetera para realizar este gasto', 'error', 2500);
                 confirmRegistrar = 0;
                 return
             } else if ((total + importeMovimiento) < 100) {
-                alerta('', `😧 Cuidado, tu billetera se está quedando con poco dinero, te quedan $${total+importeMovimiento} disponibles`, 'warning', 2000);
+                alerta('', `Cuidado, tu billetera se está quedando con poco dinero, te quedan $${total+importeMovimiento} disponibles`, 'warning', 3000);
                 confirmRegistrar = 1;
             } else {
-                alerta('', `Has registrado un nuevo ${claseMovimiento} en tu billetera, te quedan $${total+importeMovimiento} disponibles`, 'success', 2000);
+                alerta('', `Has registrado un nuevo ${claseMovimiento} en tu billetera, te quedan $${total+importeMovimiento} disponibles`, 'success', 2500);
                 confirmRegistrar = 1;
             }
         } else {
@@ -247,7 +247,7 @@ function mostrar_gastos() {
 // Función para filtrar según clase 'ingreso' o 'gasto'
 function filtrar_movimientos(parametroFiltro) {
     movimientos_filtrado = movimientos.filter((movimiento) => movimiento.clase.includes(parametroFiltro));
-    (movimientos_filtrado.length !== 0) ? movimientos_filtrado : alert(`No se encontró ningún ${parametroFiltro} registado`);
+    (movimientos_filtrado.length !== 0) ? movimientos_filtrado : alerta('',`No se encontró ningún ${parametroFiltro} registado`,'warning',2000);
 }
 
 // Remueve filtros aplicados y vuelve a mostrar todos los movimientos
@@ -271,7 +271,7 @@ function calcularTotal(array) {
 function buscar_descripcion() {
     let palabra = document.querySelector("#input_busqueda").value.toLowerCase();
     movimientos_palabra = movimientos.filter((movimiento) => movimiento.descripcion.includes(palabra));
-    (movimientos_palabra.length !== 0) ? listar_en_panel(movimientos_palabra) : alert(`No se encontró "${palabra}" en los movimientos`);
+    (movimientos_palabra.length !== 0) ? listar_en_panel(movimientos_palabra) : alerta('',`No se encontró "${palabra}" en los movimientos`,'warning',2000);
 
     text_total.innerHTML = `Total:`; // RESOLVER MEJOR ESTO
     document.querySelector("#input_busqueda").value = "";
